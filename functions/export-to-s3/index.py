@@ -30,15 +30,14 @@ def handler(event, context):
     sourceId = message["detail"]["SourceIdentifier"]
     sourceArn = message["detail"]["SourceArn"]
     rdsEventID = os.environ["RDS_EVENT_ID"].replace(' ', '').split(',')
-    dbName = os.environ['DB_NAME'].replace(' ', '').split(',')
+    regexes = os.environ['SNAPSHOT_REGEXES'].replace(' ', '').split(',')
 
     if eventId in rdsEventID:
-        for db in dbName:
-            matchSnapshotRegEx = "^rds(:|-)" + db + "-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}$"
+        for matchSnapshotRegEx in regexes:
             if re.match(matchSnapshotRegEx, sourceId):
                 exportTaskId = ((sourceId[4:] + '-').replace("--", "-") + messageId)[:60]
-                if exportTaskId[-1] == "-":
-                    exportTaskId = exportTaskId[:-1]
+                if exportTaskId[59] == "-":
+                    exportTaskId = exportTaskId[:59]
                 response = boto3.client("rds").start_export_task(
                     ExportTaskIdentifier=exportTaskId,
                     SourceArn=sourceArn,
@@ -53,7 +52,7 @@ def handler(event, context):
                 logger.info(json.dumps(response))
             else:
                 logger.info(f"Ignoring event notification for {sourceId} - {eventId}")
-                logger.info(f"notifications for {dbName} only")
+                logger.info(f"notifications for {matchSnapshotRegEx} only")
 
     else:
         logger.info(f"Ignoring event notification for {sourceId} - {eventId}")

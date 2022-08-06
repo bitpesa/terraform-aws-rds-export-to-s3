@@ -61,11 +61,7 @@ resource "aws_iam_policy" "rdsStartExportTaskLambda" {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Action": [
-							"rds:StartExportTask",
-							"rds:DescribeDBSnapshots",
-							"rds:DescribeDBClusterSnapshots"
-						],
+            "Action": "rds:StartExportTask",
             "Resource": "*",
             "Effect": "Allow"
         },

@@ -29,7 +29,7 @@ def handler(event, context):
     sourceType = message["detail"]["SourceType"]
     sourceId = message["detail"]["SourceIdentifier"]
     sourceArn = message["detail"]["SourceArn"]
-    dbName = os.environ['DB_NAME'].replace(' ', '').split(',')
+    regexes = os.environ['SNAPSHOT_REGEXES'].replace(' ', '').split(',')
 
     # Ref: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.Messages.html#USER_Events.Messages.snapshot
     # Ref: https://docs.amazonaws.cn/en_us/AmazonRDS/latest/AuroraUserGuide/USER_Events.Messages.html#USER_Events.Messages.cluster-snapshot
@@ -45,8 +45,7 @@ def handler(event, context):
     }
 
     if eventId in supportedEvents.keys():
-        for db in dbName:
-            matchSnapshotRegEx = "^rds:" + db + "-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}$"
+        for matchSnapshotRegEx in regexes:
             if re.match(matchSnapshotRegEx, sourceId):
                 messageTitle = supportedEvents[eventId]
                 messageBody = {
@@ -62,7 +61,7 @@ def handler(event, context):
                 )
             else:
                 logger.info(f"Ignoring event notification for {sourceId} - {eventId}")
-                logger.info(f"notifications for {dbName} only")
+                logger.info(f"notifications for {matchSnapshotRegEx} only")
 
     else:
         logger.info(f"Ignoring event notification for {sourceId} - {eventId}")

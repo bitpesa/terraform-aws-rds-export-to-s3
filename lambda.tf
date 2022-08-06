@@ -17,7 +17,7 @@ module "start_export_task_lambda" {
 
   environment_variables = {
     RDS_EVENT_ID : var.rds_event_ids,
-    DB_NAME : var.database_names,
+    SNAPSHOT_REGEXES : var.snapshot_regexes,
     SNAPSHOT_BUCKET_NAME : var.snapshots_bucket_name,
     SNAPSHOT_BUCKET_PREFIX : var.snapshots_bucket_prefix,
     SNAPSHOT_TASK_ROLE : aws_iam_role.rdsSnapshotExportTask.arn,
@@ -48,7 +48,7 @@ module "monitor_export_task_lambda" {
   source_path = "${path.module}/functions/monitor-export-to-s3"
 
   environment_variables = {
-    DB_NAME : var.database_names,
+    SNAPSHOT_REGEXES : var.snapshot_regexes,
     SNS_NOTIFICATIONS_TOPIC_ARN : var.create_notifications_topic ? aws_sns_topic.exportMonitorNotifications[0].arn : var.notifications_topic_arn,
     LOG_LEVEL : var.log_level,
   }

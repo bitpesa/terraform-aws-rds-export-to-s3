@@ -17,7 +17,7 @@ variable "postfix" {
   default     = null
 }
 
-variable "database_names" {
+variable "snapshot_regexes" {
   description = "The names of the databases whose snapshots we want to export to S3. Comma-separated values), ex: 'db-cluster1, db-cluster2'"
   type        = string
   default     = null
